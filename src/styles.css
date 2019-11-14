@@ -1,0 +1,96 @@
+.App {
+  font-family: sans-serif;
+  padding: 0;
+  margin: 0;
+
+  display: grid;
+  grid-template-areas: "header header" "navbar body";
+  grid-template-rows: 15vh 80vh;
+  grid-template-columns: 20% 80%;
+  grid-gap: 4px;
+}
+
+#blockHeader {
+  grid-area: header;
+  background: lightskyblue;
+  border: 1px solid gray;
+}
+
+#blockHeader > h1 {
+  text-align: center;
+}
+
+h1,
+input[type="submit"] {
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+#blockNavbar {
+  grid-area: navbar;
+  background: lightskyblue;
+  border: 1px solid gray;
+}
+
+#blockBody {
+  grid-area: body;
+  text-align: center;
+}
+
+nav {
+  margin: 0;
+  padding: 10px;
+}
+
+nav a {
+  display: block;
+  text-decoration: none;
+  font-size: 18px;
+  font-family: sans-serif;
+  font-weight: 900;
+}
+
+hr {
+  width: 80%;
+  height: 2px;
+  background: gray;
+}
+
+input[type="text"] {
+  border: 2px medium black;
+  margin: 0 10px;
+  padding: 2px 4px;
+}
+
+label {
+  font-family: "Arial Black";
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  background: blanchedalmond;
+  border-top: 1px solid gray;
+  border-bottom: 1px solid gray;
+  padding: 2px 0;
+  margin: 7px 0;
+}
+
+.headerItem {
+  width: 60%;
+  margin-left: 20%;
+  background: aliceblue;
+  justify-content: space-around;
+}
+
+.listItem {
+  list-style: none;
+  padding: 0 0 0 5px;
+  margin: 0;
+  width: 60%;
+  padding-left: 20%;
+}
+
+.completedTodo {
+  text-decoration: line-through;
+}
