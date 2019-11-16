@@ -1,38 +1,52 @@
 import { types, flow, getRoot } from "mobx-state-tree";
 import { Todo } from "../Todo/Todo";
 import Api from "../../api/Api";
-import uuid from "uuid";
 
 export const Group = types
   .model("Group", {
     id: types.identifier,
     title: types.string,
-    todos: types.optional(types.array(Todo), []),
-    isLoading: false,
-    isError: false
+    todos: types.optional(types.array(types.reference(Todo)), []),
+    isSendLoading: false,
+    isSendError: false,
+    isAddTodoLoading: false,
+    isAddTodoError: false
   })
   .actions(self => ({
     send: flow(function* send() {
-      self.isLoading = true;
-      self.isError = false;
+      self.isSendLoading = true;
+      self.isSendError = false;
 
       try {
         const group = yield Api.Groups.add(self);
-        getRoot(self).groups.replaceGroup(self.id, group);
+        getRoot(self).mGroups.replaceGroup(self.id, group);
       } catch (e) {
         console.log(e);
-        self.isError = true;
+        self.isSendError = true;
       } finally {
-        self.isLoading = false;
+        self.isSendLoading = false;
       }
     }),
-    addTodo: flow(function* addTodo(title) {
-      const todo = Todo.create({ id: uuid(), title });
-      self.todos.push(todo);
-      yield todo.send(self.id);
+    loadGroups() {},
+    addTodo: flow(function* addTodo(todo) {
+      self.isAddTodoLoading = true;
+      self.isAddTodoError = false;
+      try {
+        yield Api.Groups.addTodo(self.id, todo);
+        self.todos.push(todo);
+      } catch (e) {
+        console.log(e);
+        self.isAddTodoError = true;
+      } finally {
+        self.isAddTodoLoading = false;
+      }
     }),
-    replaceTodoInArrayTodos(oldTodoId, todo) {
-      let idx = self.todos.findIndex(todo => todo.id === oldTodoId);
-      self.todos[idx] = todo;
-    }
+    replaceTodoInGroupTodos: flow(function* replaceTodoInGroupTodos(idx, todo) {
+      try {
+        self.todos[idx] = todo.id;
+        yield Api.Groups.update(self.id, { todos: self.todos });
+      } catch (e) {
+        console.log(e);
+      }
+    })
   }));

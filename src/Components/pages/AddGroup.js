@@ -6,7 +6,7 @@ const AddGroup = () => {
     e.preventDefault();
     let name = e.target.nameGroup.value;
     if (Boolean(name)) {
-      store.groups.add(name);
+      store.mGroups.add(name);
     }
     e.target.nameGroup.value = "";
   };

@@ -10,19 +10,19 @@ const style = {
 
 const Navbar = () => (
   <nav id="blockNavbar">
-    {Object.keys(store.routers).map((key, index) => {
-      return !Array.isArray(store.routers[key]) ? (
+    {Object.keys(store.mRoutes).map((key, index) => {
+      return !Array.isArray(store.mRoutes[key]) ? (
         <NavLink
           key={index}
           exact
-          to={store.routers[key].path}
+          to={store.mRoutes[key].path}
           activeStyle={style}
         >
-          {store.routers[key].name}
+          {store.mRoutes[key].name}
         </NavLink>
       ) : (
         <Fragment key={index}>
-          {values(store.routers[key]).map((el, idx) => (
+          {values(store.mRoutes[key]).map((el, idx) => (
             <NavLink
               exact
               key={`subIdx=${idx}`}

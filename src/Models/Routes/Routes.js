@@ -1,8 +1,8 @@
 import { types } from "mobx-state-tree";
 import { Route } from "./Route";
 
-export const Routers = types
-  .model("Routers", {
+export const Routes = types
+  .model("Routes", {
     home: Route,
     favorities: Route,
     groupById: types.optional(types.array(Route), []),

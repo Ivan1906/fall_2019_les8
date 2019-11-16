@@ -1,4 +1,4 @@
-import { types, flow, getRoot } from "mobx-state-tree";
+import { types, flow, getRoot, getParent } from "mobx-state-tree";
 import Api from "../../api/Api";
 
 export const Todo = types
@@ -12,16 +12,18 @@ export const Todo = types
     isTogglingFavority: false,
     isTogglingFavorityError: false,
     isSending: false,
-    isSendingError: false
+    isSendingError: false,
+    isRemoveLoading: false,
+    isRemoveError: false
   })
   .actions(self => ({
-    send: flow(function* send(groupId) {
+    send: flow(function* send() {
       self.isSending = true;
       self.isSendingError = false;
 
       try {
         const todo = yield Api.Todos.add(self);
-        self.replace(groupId, self.id, todo);
+        getRoot(self).mTodos.replaceTodo(self.id, todo);
       } catch (e) {
         console.log(e);
         self.isSendingError = true;
@@ -34,7 +36,7 @@ export const Todo = types
       self.isTogglingCompleted = true;
       try {
         self.isCompleted = !self.isCompleted;
-        yield Api.Todos.update({ id: self.id, isCompleted: self.isCompleted });
+        yield Api.Todos.update(self.id, { isCompleted: self.isCompleted });
       } catch (e) {
         console.log(e);
         self.isCompleted = oldValue;
@@ -48,7 +50,7 @@ export const Todo = types
       self.isTogglingFavority = true;
       try {
         self.isFavorite = !self.isFavorite;
-        yield Api.Todos.update({ id: self.id, isFavorite: self.isFavorite });
+        yield Api.Todos.update(self.id, { isFavorite: self.isFavorite });
       } catch (e) {
         console.log(e);
         self.isFavorite = oldValue;
@@ -57,15 +59,7 @@ export const Todo = types
         self.isTogglingFavority = false;
       }
     }),
-    replace(groupId, oldTodoId, todo) {
-      let groupIdx = getRoot(self).groups.groups.findIndex(
-        group => group.id === groupId
-      );
-      if (groupIdx > -1) {
-        getRoot(self).groups.groups[groupIdx].replaceTodoInArrayTodos(
-          oldTodoId,
-          todo
-        );
-      }
+    remove() {
+      getParent(self, 2).remove(self);
     }
   }));

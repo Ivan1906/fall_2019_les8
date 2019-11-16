@@ -8,15 +8,15 @@ import HeaderItem from "../shared/Components/HeaderItem";
 
 const TodoGroup = () => {
   const { id } = useParams();
-  const group = values(store.groups.groups).find(el => el.id === id);
+  const group = values(store.mGroups.groups).find(el => el.id === id);
 
   const submitHandle = e => {
     e.preventDefault();
     let text = e.target.textTodo.value;
     if (Boolean(text)) {
-      let group = values(store.groups.groups).find(group => group.id === id);
+      let group = values(store.mGroups.groups).find(group => group.id === id);
       if (group) {
-        group.addTodo(text);
+        store.mTodos.add(text, group.id);
       }
     }
     e.target.textTodo.value = "";

@@ -8,10 +8,10 @@ const TodoFavorites = () => (
   <div>
     <h1>Favorities todos</h1>
     <hr />
-    {store.todos.listFavorities.length !== 0 ? (
+    {store.mTodos.listFavorities.length > 0 ? (
       <Fragment>
         <HeaderItem />
-        <ListItem items={store.todos.listFavorities} />
+        <ListItem items={store.mTodos.listFavorities} />
       </Fragment>
     ) : (
       <p>There are not favorities todos</p>

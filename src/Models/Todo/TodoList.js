@@ -2,45 +2,62 @@ import { types, flow, getRoot } from "mobx-state-tree";
 import uuid from "uuid/v4";
 import { Todo } from "./Todo";
 import Api from "../../api/Api";
-import { values } from "mobx";
 
 export const TodoList = types
   .model("TodoList", {
-    todos: types.optional(types.array(Todo), []),
-    isLoading: false,
-    isError: false
+    todos: types.optional(types.array(Todo), [])
   })
   .actions(self => ({
-    loadTodos: flow(function* loadTodos() {
-      self.isLoading = true;
-      self.isError = false;
+    addTodos(todos) {
+      self.todos = todos;
+    },
+    add: flow(function* add(title, groupId) {
+      const todo = Todo.create({ id: uuid(), title });
+      self.todos.push(todo);
+
+      let idx = getRoot(self).mGroups.groups.findIndex(
+        group => group.id === groupId
+      );
+      if (idx > -1) {
+        yield getRoot(self).mGroups.groups[idx].addTodo(todo);
+      }
+
+      yield todo.send();
+    }),
+    remove(todo) {
+      self.todos.splice(self.todos.indexOf(todo), 1);
+    },
+    replaceTodo(oldTodoId, todo) {
+      //Get index old todo
+      let idx = getRoot(self).mTodos.todos.findIndex(
+        todo => todo.id === oldTodoId
+      );
+      //Add new Todo
+      self.todos.push(todo);
 
       try {
-        self.todos = yield Api.Todos.getAll();
+        //Replace Todo in all groups in inner array todos
+        getRoot(self).mGroups.groups.forEach((group, index) => {
+          let todoIdx = group.todos.findIndex(todo => todo.id === oldTodoId);
+          if (todoIdx > -1) {
+            getRoot(self).mGroups.groups[index].replaceTodoInGroupTodos(
+              todoIdx,
+              todo
+            );
+          }
+        });
       } catch (e) {
         console.log(e);
-        self.isError = true;
-      } finally {
-        self.isLoading = false;
       }
-      yield;
-    }),
-    add: flow(function* add(title, group) {
-      const todo = Todo.create({ id: uuid(), title, group: group.id });
-      self.todos.push(todo);
-      yield todo.send();
-    })
+
+      //Remove Todo in State manager
+      if (idx > -1) {
+        getRoot(self).mTodos.todos[idx].remove();
+      }
+    }
   }))
   .views(self => ({
     get listFavorities() {
-      const favorities = [];
-      values(getRoot(self).groups.groups).forEach(group => {
-        values(group.todos).forEach(todo => {
-          if (todo.isFavorite) {
-            favorities.push(todo);
-          }
-        });
-      });
-      return favorities;
+      return self.todos.filter(todo => todo.isFavorite === true);
     }
   }));
